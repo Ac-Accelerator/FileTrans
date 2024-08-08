@@ -1,4 +1,5 @@
 #include "ft.h"
+#include "quic.h"
 #include "socketevent.h"
 #include "stunclient.h"
 #include <arpa/inet.h>
@@ -77,9 +78,7 @@ int main(int argc, char *argv[]) {
   ft.processMessage(msg, len);
   FtProtocol::NS other_ns = ft.getNetStatus();
 
-  if (other_ns._NatStatus == NATStatus::Unknown ||
-      other_ns._NatStatus == NATStatus::UDPBlocked ||
-      other_ns._NatStatus == NATStatus::PortRestrictedCone) {
+  if (other_ns._NatStatus != NoNAT) {
     std::cout << "USE TCP" << std::endl;
     if (sending) {
       ft.getDataRequest(msg, len);
@@ -107,6 +106,19 @@ int main(int argc, char *argv[]) {
       }
     }
   } else {
+    std::cout << "USE UDP" << std::endl;
+    int file_fd;
+    if (sending) {
+      file_fd = open(argv[1], O_RDONLY);
+      other_ns._IP = htonl(other_ns._IP);
+      char ipStr[16];
+      inet_ntop(AF_INET, &other_ns._IP, ipStr, 16);
+      Client(ipStr, file_fd);
+    } else {
+      file_fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+      Server(file_fd);
+    }
+    close(file_fd);
   }
 
   return 0;

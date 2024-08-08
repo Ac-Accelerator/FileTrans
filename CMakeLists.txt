@@ -11,6 +11,7 @@ include_directories(network)
 include_directories(stunprotocol)
 include_directories(ftprotocol)
 include_directories(hiredis)
+include_directories(msquic/include)
 
 
 add_subdirectory(client)
@@ -20,3 +21,4 @@ add_subdirectory(stunprotocol)
 add_subdirectory(ftprotocol)
 add_subdirectory(hiredis)
 
+# add_subdirectory(xquic)
